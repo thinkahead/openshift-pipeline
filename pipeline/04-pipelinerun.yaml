@@ -1,0 +1,27 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-and-deploy-run
+spec:
+  serviceAccountName: build-bot
+  pipelineRef:
+    name: build-and-deploy
+  params:
+  - name: repository
+    value: https://github.com/thinkahead/openshift-pipeline.git
+    #value: https://github.com/thinkahead/docker-stacks.git
+  - name: context
+    value: base-notebook
+  - name: dockerfile
+    value: Dockerfile
+  - name: image
+    value: image-registry.openshift-image-registry.svc:5000/alexei/madi-pipeline-notebook:latest
+  - name: manifest-dir
+    value: openshift
+  - name: deployment-name
+    value: madi-pipeline
+  workspaces:
+  - name: shared-workspace
+    persistentvolumeclaim:
+      claimName: repo-source-pvc

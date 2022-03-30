@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oc-apply-deployment
+spec:
+  params:
+  - name: manifest-dir
+    description: The directory in source that contains yaml manifests
+    type: string
+    default: "openshift"
+  - name: deployment-name
+    description: The name of the deployment patch the image
+    type: string
+  - name: new-image
+    type: string
+  workspaces:
+  - name: source
+  steps:
+  - name: apply
+    image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+    workingdir: $(workspaces.source.path)
+    command: ["/bin/bash", "-c"]
+    args:
+    - |-
+      echo sed -i \''s/${APPLICATION_NAME}/$(params.deployment-name)/g'\' $(params.manifest-dir)/*
+      sed -i 's/${APPLICATION_NAME}/$(params.deployment-name)/g' $(params.manifest-dir)/*
+      echo sed -i \''s|${IMAGE}|$(params.new-image)|g'\' $(params.manifest-dir)/*
+      sed -i 's|${IMAGE}|$(params.new-image)|g' $(params.manifest-dir)/*
+      echo Applying manifests in $(params.manifest-dir) directory
+      oc apply -f $(params.manifest-dir)
+      echo -----------------------------------

@@ -1,0 +1,71 @@
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: ${APPLICATION_NAME}
+  name: ${APPLICATION_NAME}
+spec:
+  replicas: 1
+  selector:
+    app: ${APPLICATION_NAME}
+    deploymentconfig: ${APPLICATION_NAME}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+      labels:
+        app: ${APPLICATION_NAME}
+        deploymentconfig: ${APPLICATION_NAME}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - start-notebook.sh
+        - --config=/etc/jupyter/openshift/jupyter_notebook_config.py
+        - --no-browser
+        - --ip=0.0.0.0
+        env:
+        - name: JUPYTER_NOTEBOOK_PASSWORD
+          value: test1234
+        image: ${IMAGE}
+        name: jupyter-notebook
+        ports:
+        - containerPort: 8888
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/jupyter/openshift
+          name: configs
+      hostAliases:
+      - hostnames:
+        - iesp-dn1.pbm.ihost.com
+        ip: 10.0.78.47
+      - hostnames:
+        - iesp-dn2.pbm.ihost.com
+        ip: 10.0.78.48
+      - hostnames:
+        - iesp-dn3.pbm.ihost.com
+        ip: 10.0.78.49
+      - hostnames:
+        - iesp-nn1.pbm.ihost.com
+        ip: 10.0.78.50
+      securityContext:
+        supplementalGroups:
+        - 100
+      volumes:
+      - configMap:
+          name: ${APPLICATION_NAME}-cfg
+        name: configs
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - jupyter-notebook
+      from:
+        kind: ImageStreamTag
+        name: tensorflowubuntu:latest
+    type: ImageChange
+

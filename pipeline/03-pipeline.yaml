@@ -1,0 +1,67 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy
+spec:
+  params:
+  - name: repository
+    type: string
+  - name: context
+    type: string
+  - name: dockerfile
+    type: string
+  - name: image
+    type: string
+  - name: manifest-dir
+    type: string
+  - name: deployment-name
+    type: string
+  workspaces:
+  - name: shared-workspace
+  tasks:
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.repository) 
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+  - name: build-image
+    taskRef:
+      name: buildah
+    runAfter:
+    - fetch-repository
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: IMAGE
+      value: $(params.image)
+    - name: TLSVERIFY
+      value: "false"
+    - name: CONTEXT
+      value: $(params.context)
+    - name: DOCKERFILE
+      value: $(params.dockerfile)
+  - name: deploy
+    taskRef:
+      name: oc-apply-deployment
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: manifest-dir
+      value: $(params.manifest-dir)
+    - name: new-image
+      value: $(params.image)
+    - name: deployment-name
+      value: $(params.deployment-name) 
+    runAfter:
+    - build-image
