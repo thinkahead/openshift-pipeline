@@ -39,18 +39,9 @@ spec:
         - mountPath: /etc/jupyter/openshift
           name: configs
       hostAliases:
-      - hostnames:
-        - iesp-dn1.pbm.ihost.com
-        ip: 10.0.78.47
-      - hostnames:
-        - iesp-dn2.pbm.ihost.com
-        ip: 10.0.78.48
-      - hostnames:
-        - iesp-dn3.pbm.ihost.com
-        ip: 10.0.78.49
-      - hostnames:
-        - iesp-nn1.pbm.ihost.com
-        ip: 10.0.78.50
+      - hostnames:
+        - jump1
+        ip: 10.241.64.4
       securityContext:
         supplementalGroups:
         - 100
@@ -66,6 +57,6 @@ spec:
       - jupyter-notebook
       from:
         kind: ImageStreamTag
-        name: tensorflowubuntu:latest
+        name: madi-pipeline-notebook:latest
     type: ImageChange
 

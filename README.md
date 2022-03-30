@@ -23,7 +23,7 @@ Run the digits.ipynb notebook at the url from the route, password test1234.
 ```
 oc get routes
 ```
-Browse to http://madi-pipeline-alexei.apps.ies.pbm.ihost.com
+Browse to https://madi-pipeline-alexei.edge-system-health-ocp-cf7808d3396a7c1915bd1818afbfb3c0-0000.upi.containers.appdomain.cloud
 
 ### If there is an error, you can delete the pipeline run and redeploy
 ```
@@ -39,4 +39,25 @@ oc -n alexei delete all,configmap,pvc,serviceaccount,rolebinding,buildconfig --s
 ### Delete the pipeline and pvc
 ```
 oc delete -f pipeline/ -n alexei
+```
+
+### Note
+The Kind: ClusterTask did not work for me, so I added the following to alexei namespace
+```
+oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.5/git-clone.yaml
+oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/buildah/0.3/buildah.yaml
+# DO NOT DO THIS
+oc adm policy add-scc-to-group privileged system:authenticated # change the default SCC for the cluster
+# Instead add it to the service account
+#oc adm policy add-scc-to-user privileged system:serviceaccount:alexei:default
+```
+https://github.com/RedHatWorkshops/openshiftv3-ops-workshop/blob/master/managing_scc.md
+
+## Echoer ClusterTask
+```
+oc apply -f echoer-task.yaml
+oc get clustertask echoer
+tkn clustertask describe echoer
+tkn clustertask start echoer --showlog
+tkn tr delete echoer-run-f7646
 ```

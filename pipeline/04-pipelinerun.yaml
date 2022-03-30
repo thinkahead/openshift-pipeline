@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   name: build-and-deploy-run
 spec:
-  serviceAccountName: build-bot
+  #serviceAccountName: build-bot
   pipelineRef:
     name: build-and-deploy
   params:
