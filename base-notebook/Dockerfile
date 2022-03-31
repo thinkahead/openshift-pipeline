@@ -126,7 +126,7 @@ RUN set -x && \
 # See: https://github.com/jupyter/docker-stacks/issues/1539
 RUN set -x && \
     arch=$(uname -m) && \
-    if [ "${arch}" == "aarch64" ]; then \
+    if [ "${arch}" = "aarch64" ]; then \
         mamba install --quiet --yes \
             'mamba<0.18' && \
             mamba clean --all -f -y && \
