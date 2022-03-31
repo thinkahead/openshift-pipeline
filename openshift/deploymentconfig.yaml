@@ -39,9 +39,9 @@ spec:
         - mountPath: /etc/jupyter/openshift
           name: configs
       hostAliases:
-      - hostnames:
-        - jump1
-        ip: 10.241.64.4
+      - hostnames:
+        - jump1
+        ip: "10.241.64.4"
       securityContext:
         supplementalGroups:
         - 100
