@@ -46,10 +46,17 @@ The Kind: ClusterTask did not work for me, so I added the following to alexei na
 ```
 oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.5/git-clone.yaml
 oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/buildah/0.3/buildah.yaml
+oc describe scc privileged
+
 # DO NOT DO THIS
-oc adm policy add-scc-to-group privileged system:authenticated # change the default SCC for the cluster
-# Instead add it to the service account
-#oc adm policy add-scc-to-user privileged system:serviceaccount:alexei:default
+oc adm policy add-scc-to-group privileged system:authenticated
+#oc adm policy remove-scc-from-group privileged system:authenticated
+
+# One of the below should work
+oc adm policy add-scc-to-user privileged system:serviceaccount:alexei:pipeline
+#oc adm policy remove-scc-from-user privileged system:serviceaccount:alexei:pipeline
+oc adm policy add-scc-to-user privileged -z pipeline -n alexei
+#oc adm policy remove-scc-from-user privileged -z pipeline -n alexei
 ```
 https://github.com/RedHatWorkshops/openshiftv3-ops-workshop/blob/master/managing_scc.md
 
